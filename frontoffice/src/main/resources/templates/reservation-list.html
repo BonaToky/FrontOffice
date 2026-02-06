@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Réservations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Liste des Réservations</h2>
+        </div>
+        <div class="card-body">
+            <!-- Filtre par date -->
+            <form th:action="@{/reservations}" method="get" class="row g-3 mb-4">
+                <div class="col-auto">
+                    <label for="date" class="col-form-label">Filtrer par date :</label>
+                </div>
+                <div class="col-auto">
+                    <input type="date" id="date" name="date" class="form-control" th:value="${selectedDate}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-secondary">Filtrer</button>
+                    <a th:href="@{/reservations}" class="btn btn-link">Réinitialiser</a>
+                </div>
+            </form>
+
+            <!-- Table des réservations -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Client ID</th>
+                        <th>Nombre</th>
+                        <th>Date</th>
+                        <th>Hôtel</th>
+                        <th>Lieu</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="res : ${reservations}">
+                        <td th:text="${res.idReservation}"></td>
+                        <td th:text="${res.idClient}"></td>
+                        <td th:text="${res.nombre}"></td>
+                        <td th:text="${#temporals.format(res.date_reservation, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${res.hotel != null ? res.hotel.nom : 'N/A'}"></td>
+                        <td th:text="${res.hotel != null ? res.hotel.lieu : 'N/A'}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reservations)}">
+                        <td colspan="6" class="text-center">Aucune réservation trouvée.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
