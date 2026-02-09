@@ -44,7 +44,7 @@
                         <td th:text="${res.idReservation}"></td>
                         <td th:text="${res.idClient}"></td>
                         <td th:text="${res.nombre}"></td>
-                        <td th:text="${#temporals.format(res.date_reservation, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${#temporals.format(res.dateReservation, 'dd/MM/yyyy HH:mm')}"></td>
                         <td th:text="${res.hotel != null ? res.hotel.nom : 'N/A'}"></td>
                         <td th:text="${res.hotel != null ? res.hotel.lieu : 'N/A'}"></td>
                     </tr>
