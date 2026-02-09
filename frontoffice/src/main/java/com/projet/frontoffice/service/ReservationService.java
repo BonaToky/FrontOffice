@@ -1,47 +1,56 @@
 package com.projet.frontoffice.service;
 
-import com.projet.frontoffice.model.Hotel;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projet.frontoffice.model.Reservation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import java.util.Arrays;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.time.LocalDate;
 
 @Service
 public class ReservationService {
 
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
-    @Value("${backoffice.api.url:http://localhost:8081/api/reservations}")
+    @Value("${backoffice.api.url:http://localhost:8080/reservation-core/api/reservations}")
     private String apiUrl;
 
-    public ReservationService(RestTemplate restTemplate) {
+    public ReservationService(RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
     }
 
     public List<Reservation> getAllReservations() {
         try {
-            Reservation[] response = restTemplate.getForObject(apiUrl, Reservation[].class);
-            return response != null ? Arrays.asList(response) : List.of();
+            String json = restTemplate.getForObject(apiUrl, String.class);
+            System.out.println("=== JSON brut ===");
+            System.out.println(json);
+
+            JsonNode root = objectMapper.readTree(json);
+            JsonNode reservationsNode = root.get("reservations");
+
+            List<Reservation> reservations = objectMapper.convertValue(
+                    reservationsNode, new TypeReference<List<Reservation>>() {});
+
+            for (Reservation r : reservations) {
+                System.out.println("ID: " + r.getIdReservation()
+                        + " | Client: " + r.getIdClient()
+                        + " | Date: " + r.getDateReservation()
+                        + " | Hotel: " + (r.getHotel() != null ? r.getHotel().getNom() : "null"));
+            }
+
+            return reservations;
         } catch (Exception e) {
-            // Log error and return mock data for now since BackOffice is not ready
             System.err.println("Error calling BackOffice API: " + e.getMessage());
-            return getMockReservations(); 
+            e.printStackTrace();
+            return List.of();
         }
-    }
-
-    private List<Reservation> getMockReservations() {
-        Hotel h1 = new Hotel(1L, "Hotel Sunshine", "Paris");
-        Hotel h2 = new Hotel(2L, "Hotel Moonlight", "Lyon");
-
-        return Arrays.asList(
-            new Reservation(1L, 101L, 2, java.time.LocalDateTime.now(), h1),
-            new Reservation(2L, 102L, 4, java.time.LocalDateTime.now().plusDays(1), h2),
-            new Reservation(3L, 103L, 1, java.time.LocalDateTime.now().minusDays(1), h1)
-        );
     }
 
     public List<Reservation> getFilteredReservations(LocalDate date) {
@@ -50,7 +59,7 @@ public class ReservationService {
             return all;
         }
         return all.stream()
-                .filter(r -> r.getDate_reservation().toLocalDate().isEqual(date))
+                .filter(r -> r.getDateReservation() != null && r.getDateReservation().toLocalDate().isEqual(date))
                 .collect(Collectors.toList());
     }
 }

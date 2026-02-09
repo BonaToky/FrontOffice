@@ -1,14 +1,22 @@
 package com.projet.frontoffice.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Hotel {
+
     private Long idHotel;
     private String nom;
     private String lieu;
+
+    public Hotel() {}
+
+    public Long getIdHotel() { return idHotel; }
+    public void setIdHotel(Long idHotel) { this.idHotel = idHotel; }
+
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
+
+    public String getLieu() { return lieu; }
+    public void setLieu(String lieu) { this.lieu = lieu; }
 }
