@@ -1,5 +1,6 @@
 package com.projet.frontoffice.controller;
 
+import com.projet.frontoffice.annotation.CheckToken;
 import com.projet.frontoffice.service.ReservationService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    @CheckToken
     @GetMapping
     public String listReservations(
             @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
