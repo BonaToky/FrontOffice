@@ -25,8 +25,9 @@ public class ReservationController {
     @GetMapping
     public String listReservations(
             @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(value = "token", required = false) String token,
             Model model) {
-        model.addAttribute("reservations", reservationService.getFilteredReservations(date));
+        model.addAttribute("reservations", reservationService.getFilteredReservations(date, token));
         model.addAttribute("selectedDate", date);
         return "reservation-list";
     }
