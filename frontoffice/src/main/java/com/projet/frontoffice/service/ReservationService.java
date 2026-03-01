@@ -2,6 +2,7 @@ package com.projet.frontoffice.service;
 
 import com.projet.frontoffice.model.Hotel;
 import com.projet.frontoffice.model.Reservation;
+import com.projet.frontoffice.model.ReservationResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,10 +23,14 @@ public class ReservationService {
         this.restTemplate = restTemplate;
     }
 
-    public List<Reservation> getAllReservations() {
+    public List<Reservation> getAllReservations(String token) {
         try {
-            Reservation[] response = restTemplate.getForObject(apiUrl, Reservation[].class);
-            return response != null ? Arrays.asList(response) : List.of();
+            String url = apiUrl;
+            if (token != null && !token.isEmpty()) {
+                url += (apiUrl.contains("?") ? "&" : "?") + "token=" + token;
+            }
+            ReservationResponse response = restTemplate.getForObject(url, ReservationResponse.class);
+            return response != null ? response.getReservations() : List.of();
         } catch (Exception e) {
             // Log error and return mock data for now since BackOffice is not ready
             System.err.println("Error calling BackOffice API: " + e.getMessage());
@@ -44,8 +49,8 @@ public class ReservationService {
         );
     }
 
-    public List<Reservation> getFilteredReservations(LocalDate date) {
-        List<Reservation> all = getAllReservations();
+    public List<Reservation> getFilteredReservations(LocalDate date, String token) {
+        List<Reservation> all = getAllReservations(token);
         if (date == null) {
             return all;
         }
